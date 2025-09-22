@@ -36,8 +36,6 @@
     "inspector": "./node_modules/.bin/mcp-inspector-cli --cli node dist/index.js stdio"
   },
   "dependencies": {
-    "@anthropic-ai/claude-code": "^1.0.33",
-    "@modelcontextprotocol/inspector": "^0.15.0",
     "@modelcontextprotocol/sdk": "^1.13.1",
     "@pulumi/pulumi": "^3.169.0",
     "express": "^5.1.0",
@@ -46,6 +44,8 @@
     "zod": "^3.24.4"
   },
   "devDependencies": {
+    "@anthropic-ai/claude-code": "^1.0.33",
+    "@modelcontextprotocol/inspector": "^0.15.0",
     "@eslint/js": "^9.26.0",
     "@types/chai": "^4.3.11",
     "@types/express": "^5.0.1",
