@@ -10,6 +10,7 @@ import { deployCommands, deployPrompts } from '../deploy/deploy.js';
 import { convertPrompts } from '../pulumi/convert.js';
 import { resourceSearchCommands } from '../insights/resource-search.js';
 import { neoTaskLauncherCommands } from '../neo/neo-task-launcher.js';
+import { READONLY } from './readonly.js';
 
 // Get the directory of the current module
 const __filename = fileURLToPath(import.meta.url);
@@ -65,9 +66,18 @@ export class Server extends McpServer {
       });
     });
 
-    // Register CLI commands
+    // Register CLI commands with read-only filtering
     Object.entries(cliCommands).forEach(([commandName, command]) => {
       const toolName = `pulumi-cli-${commandName}`;
+
+      if (
+        READONLY &&
+        !['preview', 'stack-output'].includes(commandName)
+      ) {
+        // Skip registering write commands in read-only mode
+        return;
+      }
+
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this.tool(toolName, command.description, command.schema, async (args: any) => {
         try {
@@ -78,19 +88,21 @@ export class Server extends McpServer {
       });
     });
 
-    // Register deploy commands
-    Object.entries(deployCommands).forEach(([commandName, command]) => {
-      const toolName = commandName;
-      this.tool(toolName, command.description, command.schema, async () => {
-        try {
-          return await command.handler();
-        } catch (error) {
-          return handleError(error, toolName);
-        }
+    // Register deploy commands (skip in read-only)
+    if (!READONLY) {
+      Object.entries(deployCommands).forEach(([commandName, command]) => {
+        const toolName = commandName;
+        this.tool(toolName, command.description, command.schema, async () => {
+          try {
+            return await command.handler();
+          } catch (error) {
+            return handleError(error, toolName);
+          }
+        });
       });
-    });
+    }
 
-    // Register resource search commands
+    // Register resource search commands (read-only safe)
     Object.entries(resourceSearchCommands).forEach(([commandName, command]) => {
       const toolName = `pulumi-${commandName}`;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -103,7 +115,7 @@ export class Server extends McpServer {
       });
     });
 
-    // Register neo task launcher commands
+    // Register neo task launcher commands (read-only safe)
     Object.entries(neoTaskLauncherCommands).forEach(([commandName, command]) => {
       const toolName = commandName;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

@@ -286,6 +286,52 @@ npm run inspector -- --method prompts/list
 ```
 
 > **Note:** This MCP server is actively evolving with new features being added regularly. While we strive to maintain compatibility, some API changes may occur as we improve it. Please file an issue on [GitHub](https://github.com/pulumi/mcp-server/issues) if you encounter bugs or would like to request support for additional Pulumi commands.
+## Read-only mode
+
+Enable a read-only mode that hides and blocks mutating tools.
+
+- Enabled tools: `pulumi-registry-*`, `pulumi-cli-preview`, `pulumi-cli-stack-output`, `pulumi-resource-search`, `neo-task-launcher`
+- Disabled tools: `pulumi-cli-up`, `pulumi-cli-destroy` (not currently implemented), `pulumi-cli-refresh`
+
+How to enable (args-only):
+
+- Pass `--readonly` to the `stdio` or `http` subcommands.
+
+Examples:
+
+```bash
+# Local usage with stdio
+npx pulumi-mcp-server stdio --readonly
+
+# HTTP mode
+npx pulumi-mcp-server http --port 3000 --readonly
+
+# Docker
+docker run -i --rm mcp/pulumi:latest stdio --readonly
+```
+
+Client config example:
+
+```json
+{
+  "mcpServers": {
+    "pulumi": {
+      "command": "npx",
+      "args": ["pulumi-mcp-server", "stdio", "--readonly"]
+    }
+  }
+}
+```
+
+Behavior:
+
+- When read-only is enabled, `tools/list` will not include mutating CLI commands.
+- Direct invocation of a disabled tool returns an error message: "Tool \"<name>\" is disabled in read-only mode".
+
+Using with local Pulumi CLI
+
+This server uses the Pulumi Automation API under the hood and works with your locally installed Pulumi. Ensure `pulumi` is installed and authenticated (e.g., `pulumi login`). No special setup is required beyond what you already use locally.
+
 
 ## License
 

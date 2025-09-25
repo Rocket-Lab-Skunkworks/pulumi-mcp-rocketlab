@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import * as automation from '@pulumi/pulumi/automation/index.js';
+import { assertWritable } from '../server/readonly.js';
 
 type PreviewArgs = {
   workDir: string;
@@ -64,6 +65,7 @@ ${previewResult.stdout || 'No additional output'}
       stackName: z.string().optional().describe("The associated stack name. Defaults to 'dev'.")
     },
     handler: async (args: UpArgs) => {
+      assertWritable('pulumi-cli-up');
       const stackArgs: automation.LocalProgramArgs = {
         stackName: args.stackName ?? 'dev',
         workDir: args.workDir
@@ -167,6 +169,7 @@ ${outputContent}
       stackName: z.string().optional().describe("The associated stack name. Defaults to 'dev'.")
     },
     handler: async (args: { workDir: string; stackName?: string }) => {
+      assertWritable('pulumi-cli-refresh');
       const stackArgs: automation.LocalProgramArgs = {
         stackName: args.stackName ?? 'dev',
         workDir: args.workDir

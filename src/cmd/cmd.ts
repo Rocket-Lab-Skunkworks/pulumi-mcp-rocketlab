@@ -9,7 +9,7 @@ export const cmd = () => {
   exe.command(
     'stdio',
     'Start Pulumi MCP server using stdio transport.',
-    () => {},
+    (yargs) => yargs.option('readonly', { type: 'boolean', default: false }),
     () => connectStdioTransport()
   );
 
@@ -17,10 +17,12 @@ export const cmd = () => {
     'http',
     'Start Pulumi MCP server using Streaming HTTP transport.',
     (yargs) => {
-      return yargs.option('port', {
-        type: 'number',
-        default: 3000
-      });
+      return yargs
+        .option('port', {
+          type: 'number',
+          default: 3000
+        })
+        .option('readonly', { type: 'boolean', default: false });
     },
     ({ port }) => {
       try {
